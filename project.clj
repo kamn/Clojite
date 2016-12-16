@@ -5,6 +5,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :uberjar-name "MyBot.jar"
-  :main Clojite_v1
+  :main Clojite_v3
   :profiles {:uberjar {:aot :all}})
   
