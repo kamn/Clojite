@@ -8,6 +8,10 @@
 ;; Rank 536
 ;; Points 28.2
 
+;; Info before v4
+;; Rank 418
+;; Points 30.76
+
 ;; Changes
 ;; ===
 ;; 1. When there are no enemy sites to take move :west or :north don't stay still
