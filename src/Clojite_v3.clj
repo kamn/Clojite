@@ -1,21 +1,33 @@
-(ns Clojite_v2
+(ns Clojite_v3
   (:require [game]
             [io])
   (:gen-class))
 
-(def bot-name "Clojite v2")
 
-;; Info before v3
-;; Rank 767
-;; Points 21.58
+
+;; Changes
+;; ===
+;; 1. When there are no enemy sites to take move :west or :north don't stay still
+;;    - Too much time is wasted waiting and sites reach max strength
+;; 2. Wait until you are strong enough to take a location nearby (or as strong)
+;;    - Moving a piece stop generation of the site
+;; 3. Error catching
+;;    - Added error cathcing when getting a site. Not sure why the error happens
+;;      I think that maybe the parsing is wrong for the game-map
+
+
+(def bot-name "Clojite v3")
 
 (defn get-at [game-map x y]
   (let [game-size (count game-map)
         real-x (mod x game-size)
-        real-y (mod y game-size)]
-    (-> game-map
-        (nth real-y)
-        (nth real-x))))
+        real-y (mod y game-size)
+        zero-site (-> game-map (nth 0) (nth 0))] 
+    (try
+     (-> game-map
+         (nth real-y)
+         (nth real-x))
+     (catch Exception e zero-site))))
 
 (defn get-north-site [game-map site]
   (get-at game-map (:x site) (dec (:y site))))
@@ -50,12 +62,15 @@
           west-site (get-west-site game-map site)
           weak-site (get-lowest-strength-site my-id [north-site east-site south-site west-site])]
       (if (nil? weak-site)
-        [site (rand-nth [:west :north :still])]
-        (cond 
-          (= weak-site north-site)  [site :north]
-          (= weak-site south-site)  [site :south]
-          (= weak-site east-site)  [site :east]
-          (= weak-site west-site)  [site :west])))))
+        [site (rand-nth [:west :north])]
+        (if (<= (:strength site) (:strength weak-site))
+         [site :still]
+         (cond 
+           (= weak-site north-site)  [site :north]
+           (= weak-site south-site)  [site :south]
+           (= weak-site east-site)  [site :east]
+           (= weak-site west-site)  [site :west]
+           :else [site :north]))))))
 
 (defn certain-moves
   "Takes a 2D vector of sites and returns a list of [site, direction] pairs"
